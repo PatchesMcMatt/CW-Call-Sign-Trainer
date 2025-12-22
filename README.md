@@ -2,6 +2,10 @@
 Simple CW Call Sign Trainer using JavaScript. Download the HTML file, run it locally in your browser.
 
 ### Version history
+0.6 alpha
+- Call signs should be more realistic and should only contain valid amateur service prefixes from ITU regions 1, 2, and 3.
+- Support for ? and / character decoding (future feature requirement)
+
 0.5 alpha
 - Adjusted GUI
 - Zeros in call signs now show as Ø to remove ambiguity
