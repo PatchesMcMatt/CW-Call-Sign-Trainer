@@ -1,6 +1,8 @@
 # CW Call Sign Trainer
 Simple CW Call Sign Trainer using JavaScript. Download the HTML file, run it locally in your browser.
 
+![CW Call Sign Trainer](cw-call-sign-trainer.png)
+
 ### Version history
 0.6 alpha
 - Call signs should be more realistic and should only contain valid amateur service prefixes from ITU regions 1, 2, and 3.
