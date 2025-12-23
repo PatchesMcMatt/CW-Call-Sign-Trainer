@@ -4,6 +4,10 @@ Simple CW Call Sign Trainer using JavaScript. Download the HTML file, run it loc
 ![CW Call Sign Trainer](cw-call-sign-trainer.png)
 
 ### Version history
+0.7 alpha
+- Realistic call sign generation for ITU regions.
+- Added config option to select ITU region to practice.
+
 0.6 alpha
 - Call signs should be more realistic and should only contain valid amateur service prefixes from ITU regions 1, 2, and 3.
 - Support for ? and / character decoding (future feature requirement)

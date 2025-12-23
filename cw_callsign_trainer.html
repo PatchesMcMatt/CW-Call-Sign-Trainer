@@ -227,6 +227,16 @@ License: GPLv3 -->
         </label>
 
         <label>
+            Call sign region (ITU):
+            <select id="regionSelect">
+                <option value="all">All Regions</option>
+                <option value="1">Region 1</option>
+                <option value="2">Region 2</option>
+                <option value="3">Region 3</option>
+            </select>
+        </label>
+
+        <label>
           Iambic mode:
           <select id="iambicMode">
             <option value="A">Mode A</option>
@@ -323,29 +333,172 @@ License: GPLv3 -->
     }
 
     /* ============================================================
-       CALL SIGN GENERATOR (Regions 1, 2, 3)
-       ============================================================ */
-    const PREFIXES = {
-      1: ["3A","3B6","3B7","3B8","3B9","3C","3C0","3DA","3V","3X","3Y","4J","4K","4L","4O","4P","4Q","4R","4S","4U","4W","4X","4Z","5A","5B","5C","5D","5H","5I","5J","5K","5N","5O","5R","5S","5T","5U","5V","5W","5X","5Y","5Z","6V","6W","7O","7P","7Q","7T","7U","7V","7W","7X","7Y","8Q","9A","9G","9H","9I","9J","9K","9L","9M2","9M4","9N","9Q","9R","9S","9T","9U","9V","9W","9X","9Y","9Z","A2","A3","A4","A5","A6","A7","A8","A9","B","C2","C3","C4","C5","C6","C7","C8","C9","D2","D3","D4","D5","D6","D7","D8","D9","E2","E3","E4","E5","E6","E7","E8","E9","EA","EB","EC","ED","EE","EF","EG","EH","EI","EJ","EK","EL","EM","EN","EO","EP","EQ","ER","ES","ET","EU","EV","EW","EX","EY","EZ","F","G","H2","HA","HB","HC","HD","HE","HF","HG","HH","HI","HJ","HK","HL","HM","HN","HO","HP","HQ","HR","HS","HT","HU","HV","HW","HX","HY","HZ","I","J2","J3","J4","J5","J6","J7","J8","J9","LA","LB","LC","LD","LE","LF","LG","LH","LI","LJ","LK","LL","LM","LN","LO","LP","LQ","LR","LS","LT","LU","LV","LW","LX","LY","LZ","OA","OB","OC","OD","OE","OF","OG","OH","OI","OJ","OK","OL","OM","ON","OO","OP","OQ","OR","OS","OT","OU","OV","OW","OX","OY","OZ","P2","P3","P4","P5","P6","P7","P8","P9","RA","RB","RC","RD","RE","RF","RG","RH","RI","RJ","RK","RL","RM","RN","RO","RP","RQ","RR","RS","RT","RU","RV","RW","RX","RY","RZ","S0","S2","S3","S5","S6","S7","S8","S9","TA","TB","TC","TD","TE","TF","TG","TH","TI","TJ","TK","TL","TM","TN","TO","TP","TQ","TR","TS","TT","TU","TV","TW","TX","TY","TZ","UA","UB","UC","UD","UE","UF","UG","UH","UI","UJ","UK","UL","UM","UN","UO","UP","UQ","UR","US","UT","UU","UV","UW","UX","UY","UZ","V5","V6","V7","V8","V9","YA","YB","YC","YD","YE","YF","YG","YH","YI","YJ","YK","YL","YM","YN","YO","YP","YQ","YR","YS","YT","YU","YV","YW","YX","YY","YZ","Z2","Z3","Z8","ZA","ZB","ZC","ZD","ZE","ZF","ZG","ZH","ZI","ZJ","ZK","ZL","ZM","ZN","ZO","ZP","ZQ","ZR","ZS","ZT","ZU","ZV","ZW","ZX","ZY","ZZ"],
-      2: ["A","K","N","W","AA","AB","AC","AD","AE","AF","AG","AH","AI","AJ","AK","AL","KA","KB","KC","KD","KE","KF","KG","KH","KI","KJ","KK","KL","KM","KN","KO","KP","KQ","KR","KS","KT","KU","KV","KW","KX","KY","KZ","NA","NB","NC","ND","NE","NF","NG","NH","NI","NJ","NK","NL","NM","NN","NO","NP","NQ","NR","NS","NT","NU","NV","NW","NX","NY","NZ","WA","WB","WC","WD","WE","WF","WG","WH","WI","WJ","WK","WL","WM","WN","WO","WP","WQ","WR","WS","WT","WU","WV","WW","WX","WY","WZ","CF","CG","CH","CI","CJ","CK","CY","CZ","CL","CM","CO","CP","CV","CW","CX","CA","CB","CC","CD","CE","3G","HC","HK","HP","3E","3F","HR","HQ","OA","OB","OC","TG","TI","YN","V2","V3","V4","8P","8R","9Y","9Z","J3","J6","J7","J8","C6","PZ","PP","PQ","PR","PS","PT","PU","PV","PW","PX","PY","AY","AZ","YV"],
-      3: ["3D2","4W","5W","6K","6L","6M","6N","6O","6P","6Q","6R","6S","6T","6U","6V","6W","6X","6Y","6Z","7J","7K","7L","7M","7N","8J","8K","8L","8M","8N","9M2","9M4","9M6","9M8","9V","A2","A3","A4","A5","A6","A7","A8","A9","AP","AQ","AR","AS","AT","AU","AV","AW","AX","AY","AZ","B","BA","BB","BC","BD","BE","BF","BG","BH","BI","BJ","BK","BL","BM","BN","BO","BP","BQ","BR","BS","BT","BU","BV","BW","BX","BY","BZ","C2","E2","H4","HL","HM","JA","JB","JC","JD","JE","JF","JG","JH","JI","JJ","JK","JL","JM","JN","JO","JP","JQ","JR","JS","JT","JU","JV","JW","JX","JY","JZ","P2","V6","V7","V8","VK","VL","VM","VN","VO","VP","VQ","VR","VS","VT","VU","VV","VW","VX","VY","VZ","YB","YC","YD","YE","YF","YG","YH","YI","YJ","YK","YL","YM","YN","YO","YP","YQ","YR","YS","YT","YU","YV","YW","YX","YY","YZ","ZK","ZL","ZM"]
-    };
+    REALISTIC CALL SIGN GENERATOR (Regions 1, 2, 3)
+    ============================================================ */
 
+    /* ---------------------------
+    Shared helpers
+    ---------------------------- */
     function randItem(a) { return a[Math.floor(Math.random() * a.length)]; }
     function randDigit() { return Math.floor(Math.random() * 10).toString(); }
     function randSuffix(n) {
-      const L = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      let s = "";
-      for (let i = 0; i < n; i++) s += L[Math.floor(Math.random() * L.length)];
-      return s;
+    const L = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let s = "";
+    for (let i = 0; i < n; i++) s += L[Math.floor(Math.random() * L.length)];
+    return s;
     }
 
+    // Prefixes where the digit in the prefix is already the call-area digit
+    // → Do NOT add another digit after them.
+    const NO_EXTRA_DIGIT_PREFIXES = new Set([
+    // Region 2 Caribbean examples
+    "PJ2", "PJ4", "PJ5", "PJ7",
+    "VP2E", "VP2M", "VP2V","VP5",
+    "ZF2",
+    "9M2","9M6"
+
+    // You can add more here as you refine behavior:
+    // e.g., "ZB2", "ZD8", etc., if needed.
+    ]);
+
+
+    /* ============================================================
+    REGION 2 — REALISTIC (U.S., Canada, Mexico, Caribbean, SA)
+    ============================================================ */
+
+    // U.S. prefixes
+    const US_PRIMARY = ["K", "N", "W"];
+    const US_SECONDARY = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+    // Canada
+    const CANADA = ["VA","VE","VO","VY"];
+
+    // Mexico
+    const MEXICO = ["XE","XF","XG"];
+
+    // Central America
+    const CENTRAL_AMERICA = ["HP","TI","TG","YN","YS"];
+
+    // Caribbean
+    const CARIBBEAN = [
+    "6Y","8P","8R","9Y","9Z","HI","J3","J6","J7","J8","ZF"
+    ];
+
+    // South America
+    const SOUTH_AMERICA = [
+    "CP","HC","HK","OA","OB","LU","LW","PY","PP","PQ","PR","PS","PT","PU","PV","PW","PX","PZ","YV","YY"
+    ];
+
+    // Weighted distribution
+    const REGION2_WEIGHTS = [
+    { list: "US", weight: 60 },
+    { list: "CANADA", weight: 10 },
+    { list: "MEXICO", weight: 5 },
+    { list: "CARIBBEAN", weight: 10 },
+    { list: "CENTRAL_AMERICA", weight: 5 },
+    { list: "SOUTH_AMERICA", weight: 10 }
+    ];
+
+    function pickWeightedRegion2() {
+    const total = REGION2_WEIGHTS.reduce((a,b)=>a+b.weight,0);
+    let r = Math.random() * total;
+    for (const entry of REGION2_WEIGHTS) {
+        if (r < entry.weight) return entry.list;
+        r -= entry.weight;
+    }
+    return "US";
+    }
+
+    function generateUSCall() {
+    const roll = Math.random();
+
+    if (roll < 0.60) return randItem(US_PRIMARY) + randDigit() + randSuffix(3); // 1×3
+    if (roll < 0.90) return randItem(US_PRIMARY) + randItem(US_SECONDARY) + randDigit() + randSuffix(3); // 2×3
+    if (roll < 0.95) return randItem(US_PRIMARY) + randDigit() + randSuffix(2); // 1×2
+    if (roll < 0.98) return randItem(US_PRIMARY) + randItem(US_SECONDARY) + randDigit() + randSuffix(1); // 2×1
+    return randItem(US_PRIMARY) + randDigit() + randSuffix(1); // 1×1
+    }
+
+    function generateFromPrefixList(list) {
+    const prefix = randItem(list);
+    const suffixLen = Math.random() < 0.2 ? 2 : 3;
+    const endsWithDigit = /\d$/.test(prefix);
+
+    if (endsWithDigit) {
+    // Prefix already includes the call-area digit
+    // → NO extra digit
+    return prefix + randSuffix(suffixLen);
+    } else {
+    // Prefix does NOT include the call-area digit
+    // → ADD a digit
+    return prefix + randDigit() + randSuffix(suffixLen);
+    }
+    }
+
+
+    function generateRegion2Call() {
+    const region = pickWeightedRegion2();
+    switch (region) {
+        case "US": return generateUSCall();
+        case "CANADA": return generateFromPrefixList(CANADA);
+        case "MEXICO": return generateFromPrefixList(MEXICO);
+        case "CARIBBEAN": return generateFromPrefixList(CARIBBEAN);
+        case "CENTRAL_AMERICA": return generateFromPrefixList(CENTRAL_AMERICA);
+        case "SOUTH_AMERICA": return generateFromPrefixList(SOUTH_AMERICA);
+        default: return generateUSCall();
+    }
+    }
+
+    /* ============================================================
+    REGION 1 — REALISTIC (Europe, Africa, Middle East)
+    ============================================================ */
+
+    const REGION1_PREFIXES = [
+    "G","M","F","DL","PA","ON","OE","OK","OM","SP","HA","HB","LA","SM","OH","YU","LZ","SV","TA","4X","5B",
+    "EA","CT","9A","S5","YO","ER","ZS","ZR","ZB","ZC","ZD","ZA","Z3","Z2","LX","LY","OZ","OY","TF","EI"
+    ];
+
+    function generateRegion1Call() {
+    const prefix = randItem(REGION1_PREFIXES);
+    const digit = randDigit();
+    const suffix = randSuffix(Math.random() < 0.2 ? 2 : 3);
+    return prefix + digit + suffix;
+    }
+
+    /* ============================================================
+    REGION 3 — REALISTIC (Asia-Pacific)
+    ============================================================ */
+
+    const REGION3_PREFIXES = [
+    "JA","JE","JF","JG","JH","JI","JK","JL","JM","HL","DS","HS","9V","VK","ZL","YB","YC","YD","YE","YF","YG","YH","VU","VR","P2","V6","V7","V8"
+    ];
+
+    function generateRegion3Call() {
+    const prefix = randItem(REGION3_PREFIXES);
+    const digit = randDigit();
+    const suffix = randSuffix(Math.random() < 0.2 ? 2 : 3);
+    return prefix + digit + suffix;
+    }
+
+    /* ============================================================
+    MASTER GENERATOR (respects user toggle)
+    ============================================================ */
     function generateCallsign() {
-      const region = [1, 2, 3][Math.floor(Math.random() * 3)];
-      const prefix = randItem(PREFIXES[region]);
-      const digit = randDigit();
-      const suffixLen = Math.random() < 0.1 ? 1 : (Math.random() < 0.4 ? 2 : 3);
-      return (prefix + digit + randSuffix(suffixLen)).toUpperCase();
+    const regionChoice = document.getElementById("regionSelect").value;
+
+    let region;
+    if (regionChoice === "all") {
+        region = [1,2,3][Math.floor(Math.random() * 3)];
+    } else {
+        region = parseInt(regionChoice, 10);
+    }
+
+    switch (region) {
+        case 1: return generateRegion1Call();
+        case 2: return generateRegion2Call();
+        case 3: return generateRegion3Call();
+        default: return generateRegion2Call();
+    }
     }
 
     /* ============================================================
@@ -572,6 +725,7 @@ License: GPLv3 -->
     const stNumber = document.getElementById("stNumber");
     const nextBtn = document.getElementById("nextBtn");
     const resetBtn = document.getElementById("resetBtn");
+    const regionSelect = document.getElementById("regionSelect");
 
     wpmSlider.addEventListener("input", (e) => {
       wpmNumber.value = e.target.value;
@@ -612,6 +766,12 @@ License: GPLv3 -->
       clearCharTimer();
       updateDisplay();
     });
+
+    regionSelect.addEventListener("change", () => {
+    // Immediately load a new call sign when the user changes regions
+    newCallsign();
+    });
+
 
     /* ============================================================
        INIT
