@@ -5,7 +5,7 @@ Simple CW Call Sign Trainer using JavaScript. Download the HTML file, run it loc
 
 ### Version history
 0.7 alpha
-- Realistic call sign generation for ITU regions.
+- Even more realistic call sign generation for ITU regions.
 - Added config option to select ITU region to practice.
 
 0.6 alpha
