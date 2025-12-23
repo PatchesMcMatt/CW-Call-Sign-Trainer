@@ -4,6 +4,10 @@ Simple CW Call Sign Trainer using JavaScript. Download the HTML file, run it loc
 ![CW Call Sign Trainer](cw-call-sign-trainer.png)
 
 ### Version history
+0.8 alpha
+- Extensive edits to call sign generator to get even closer to realistic call signs
+- Added "U.S. Calls Only" option in Call Region selector
+
 0.7 alpha
 - Even more realistic call sign generation for ITU regions.
 - Added config option to select ITU region to practice.
