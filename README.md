@@ -25,7 +25,8 @@ Simple CW Call Sign Trainer using JavaScript. Download the HTML file, run it loc
 - Adjusted GUI
 
 0.2 alpha
-- Added configuration options; WPM, sidetone, iambic keyer modes A and B settings
+- Added sidetone generator.
+- Added configuration options; WPM, sidetone volume, iambic keyer modes A and B settings
 - Adjusted GUI
 
 0.1 alpha
