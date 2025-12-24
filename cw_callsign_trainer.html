@@ -117,6 +117,12 @@ License: GPLv3 -->
       color: #e5e7eb;
       border-radius: 4px;
     }
+    .reset-flash {
+      color: #ff4444;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
     select {
       margin-left: 8px;
       padding: 2px 4px;
@@ -259,8 +265,9 @@ License: GPLv3 -->
       <div class="flex-col">
         <div class="section-title">Hints</div>
         <p style="font-size:0.85rem; color:#9ca3af; margin-top:4px;">
-          • Left paddle (ControlLeft) = dit<br>
-          • Right paddle (ControlRight) = dah<br>
+          • Left paddle, left Control key, "[" key = dit<br>
+          • Right paddle, right Control key, "]" key = dah<br>
+          • Send EEEE to reset attempt and try again<br>
           • Hold paddles for iambic sending (A or B).<br>
           • Adjust WPM to match your desired sending speed.
         </p>
@@ -275,7 +282,6 @@ License: GPLv3 -->
     /* ============================================
     SIDETONE AUDIO (650 Hz default)
     ============================================ */
-
     let audioCtx = null;
     let osc = null;
     let gainNode = null;
@@ -315,10 +321,24 @@ License: GPLv3 -->
       gainNode.gain.setTargetAtTime(0, t, 0.003);
     }
 
+    function playResetBeep() {
+      const ctx = audioCtx; // reuse your existing AudioContext
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.frequency.value = 900; // a bit higher than sidetone so it stands out
+      gain.gain.value = 0.2;     // quiet, unobtrusive
+
+      osc.connect(gain).connect(ctx.destination);
+
+      osc.start();
+      osc.stop(ctx.currentTime + 0.12); // short blip
+    }
+
+
     /* ============================================
     MORSE TABLE
     ============================================ */
-
     const MORSE = {
       A: ".-", B: "-...", C: "-.-.", D: "-..", E: ".", F: "..-.",
       G: "--.", H: "....", I: "..", J: ".---", K: "-.-", L: ".-..",
@@ -342,7 +362,6 @@ License: GPLv3 -->
     /* ---------------------------
     Shared helpers
     ---------------------------- */
-
     function randItem(a) { return a[Math.floor(Math.random() * a.length)]; }
     function randDigit() { return Math.floor(Math.random() * 10).toString(); }
     function randSuffix(n) {
@@ -353,7 +372,6 @@ License: GPLv3 -->
     }
 
     // Removes QRA - QUZ and SOS as suffixes for all calls
-
     function isForbiddenSuffix(s) {
       const upper = s.toUpperCase();
       // SOS is always forbidden
@@ -374,7 +392,6 @@ License: GPLv3 -->
     }
 
     // randSafeSuffix helps generate valid suffixes
-
     function randSafeSuffix(n) {
       let s;
       do {
@@ -384,7 +401,6 @@ License: GPLv3 -->
     }
 
     // randUS2x3Suffix() fixes the problem where the suffix of a 2x3 could start with X
-
     function randUS2x3Suffix() {
       const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       const first = letters.replace("X", ""); // remove X
@@ -400,7 +416,6 @@ License: GPLv3 -->
     }
 
     // generateWithRules() allows custom call sign generation rules
-
     function generateWithRules(prefixList, defaultRuleKey) {
       const prefix = randItem(prefixList);
       const ruleKey = CALL_RULES[prefix] ? prefix : defaultRuleKey;
@@ -410,13 +425,11 @@ License: GPLv3 -->
     /* ---------------------------
     PER‑COUNTRY SUFFIX RULES
     --------------------------- */
-
     const CALL_RULES = {
 
       // ---------------------------
       // REGION 1
       // ---------------------------
-
       // Europe (general rule)
       "EUROPE": {
         allowExtraDigit: true,
@@ -452,7 +465,6 @@ License: GPLv3 -->
       // ---------------------------
       // REGION 2
       // ---------------------------
-
       // U.S.
       "US": {
         allowExtraDigit: true,
@@ -514,7 +526,6 @@ License: GPLv3 -->
       // ---------------------------
       // REGION 3
       // ---------------------------
-
       // Japan 
       "JAPAN": {
         allowExtraDigit: true,
@@ -559,7 +570,6 @@ License: GPLv3 -->
     /* ---------------------------
     PREFIX PICKER
     --------------------------- */
-    
     function generateFromPrefixList(list, ruleKey) {
       const prefix = randItem(list);
       const rules = CALL_RULES[ruleKey];
@@ -601,7 +611,6 @@ License: GPLv3 -->
     /* ----------------------------------------------------
     REGION 1 — PREFIX (Europe, Russia, Middle East, Africa)
     ---------------------------------------------------- */
-
     // Europe
     const EUROPE = [
       "G","M",        // United Kingdom
@@ -732,7 +741,6 @@ License: GPLv3 -->
     /* ---------------------------------------------------------------
     REGION 2 — PREFIX (U.S., Canada, Mexico, Caribbean, South America)
     --------------------------------------------------------------- */
-
     // U.S. prefixes
     const US_PRIMARY = ["K", "N", "W"];
     const US_SECONDARY = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
@@ -808,7 +816,6 @@ License: GPLv3 -->
     /* ---------------------------------------
     REGION 3 — PREFIX (Asia, Oceania, Pacific)
     --------------------------------------- */
-
     // Japan
     const JAPAN = [
       "JA","JE","JF","JG","JH","JI","JJ","JK","JL","JM","JN","JO","JP","JQ","JR","JS"
@@ -902,8 +909,8 @@ License: GPLv3 -->
     let currentPattern = "";
     let decodedText = "";
     let lastElement = null;
-
     let charTimer = null;
+    let lastChars = [];
 
     function ditLengthSec() {
       const wpm = parseInt(document.getElementById("wpmNumber").value, 10) || 20;
@@ -920,9 +927,47 @@ License: GPLv3 -->
     function scheduleCharFinalizeFromNow() {
       clearCharTimer();
       const gapSec = ditLengthSec() * 3; // standard 3-dit character gap
+
       charTimer = setTimeout(() => {
         if (currentPattern.length > 0) {
           const ch = REVERSE[currentPattern] || "?";
+
+          // -----------------------------------------
+          // REALISTIC RESET: E E E E (four dits)
+          // -----------------------------------------
+          if (ch === "E") {
+            lastChars.push("E");
+            if (lastChars.length > 4) lastChars.shift();
+
+            if (lastChars.join("") === "EEEE") {
+              // Clear everything
+              decodedText = "";
+              currentPattern = "";
+              lastChars = [];
+
+              document.getElementById("decodedText").textContent = "";
+
+              // Audible reset cue
+              playResetBeep();
+
+              // Show RESET flash
+              patternEl.innerHTML = "<strong class='reset-flash'>RESET</strong>";
+
+              // After a short delay, restore Waiting for input…
+              setTimeout(() => {
+                patternEl.innerHTML = "<strong>Waiting for input…</strong>";
+              }, 500);
+
+              return; // do NOT append "E"
+            }
+          } else {
+            // Any non-E breaks the sequence
+            lastChars = [];
+          }
+
+          // -----------------------------------------
+          // Normal character handling
+          // -----------------------------------------
           decodedText += ch;
           currentPattern = "";
           updateDisplay();
@@ -1062,6 +1107,40 @@ License: GPLv3 -->
       }
     });
 
+    document.addEventListener("keydown", (e) => {
+      // DIT: [
+      if (e.key === "[") {
+        if (!ditPressed) {
+          ditPressed = true;
+          processPaddles();
+        }
+        e.preventDefault();
+      }
+
+      // DAH: ]
+      if (e.key === "]") {
+        if (!dahPressed) {
+          dahPressed = true;
+          processPaddles();
+        }
+        e.preventDefault();
+      }
+    });
+
+    document.addEventListener("keyup", (e) => {
+      // Release DIT
+      if (e.key === "[") {
+        ditPressed = false;
+        e.preventDefault();
+      }
+
+      // Release DAH
+      if (e.key === "]") {
+        dahPressed = false;
+        e.preventDefault();
+      }
+    });
+
     /* ============================================
     DISPLAY + CALL SIGN LOGIC
     ============================================ */
@@ -1082,17 +1161,20 @@ License: GPLv3 -->
       const cleanedTarget = targetCallsign.toUpperCase().replace(/\s+/g, "");
 
       if (!cleanedTarget) {
-        statusEl.textContent = "Send the call sign using your paddle.";
+        document.getElementById("status").innerHTML =
+          'Send the call sign using your paddle.<br><small>Send EEEE to reset your attempt.</small>';
       } else if (cleanedDecoded === cleanedTarget) {
-        statusEl.innerHTML = "<span class='correct'>Correct!</span> You matched the call sign.";
-        // Automatically advance after a short delay
+        statusEl.innerHTML =
+          "<span class='correct'>Correct!</span> You matched the call sign!";
         setTimeout(() => {
-            newCallsign();
+          newCallsign();
         }, 800);
       } else if (cleanedDecoded.length === 0) {
-        statusEl.textContent = "Send the call sign using your paddle.";
+        document.getElementById("status").innerHTML =
+          'Send the call sign using your paddle.<br><small>Send EEEE to reset your attempt.</small>';
       } else {
-        statusEl.innerHTML = "<span class='wrong'>Keep going…</span> You can resend the whole call if needed.";
+        statusEl.innerHTML =
+          "<span class='wrong'>Keep going…</span>  <small>Send EEEE to reset your attempt.</small>";
       }
     }
 
@@ -1162,7 +1244,6 @@ License: GPLv3 -->
     // Immediately load a new call sign when the user changes regions
     newCallsign();
     });
-
 
     /* ============================================
     INIT

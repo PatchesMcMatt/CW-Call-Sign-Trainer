@@ -4,9 +4,14 @@ Simple CW Call Sign Trainer using JavaScript. Download the HTML file, run it loc
 ![CW Call Sign Trainer](cw-call-sign-trainer.png)
 
 ### Version history
+0.9 alpha
+- Added ability to reset attempt by sending EEEE (less helpful at slower WPM; this issue will be fixed in a future release).
+- Added keyboard functionality for keyboards which do not have both a left and right Control key. You may now use [ and ] keys to send dits and dahs, respectively.
+- Minor UI improvements.
+
 0.8 alpha
-- Extensive edits to call sign generator to get even closer to realistic call signs
-- Added "U.S. Calls Only" option in Call Region selector
+- Extensive edits to call sign generator to get even closer to realistic call signs.
+- Added "U.S. Calls Only" option in Call Region selector.
 
 0.7 alpha
 - Even more realistic call sign generation for ITU regions.
@@ -14,26 +19,26 @@ Simple CW Call Sign Trainer using JavaScript. Download the HTML file, run it loc
 
 0.6 alpha
 - Call signs should be more realistic and should only contain valid amateur service prefixes from ITU regions 1, 2, and 3.
-- Support for ? and / character decoding (future feature requirement)
+- Support for ? and / character decoding (future feature requirement).
 
 0.5 alpha
-- Adjusted GUI
-- Zeros in call signs now show as Ø to remove ambiguity
-- Added sidetone frequency adjustment, to allow for better user customization
+- Adjusted GUI.
+- Zeros in call signs now show as Ø to remove ambiguity.
+- Added sidetone frequency adjustment, to allow for better user customization.
 
 0.4 alpha
-- Adjusted GUI
-- Added helper text to sections
+- Adjusted GUI.
+- Added helper text to sections.
 
 0.3 alpha
-- Adjusted GUI
+- Adjusted GUI.
 
 0.2 alpha
 - Added sidetone generator.
-- Added configuration options; WPM, sidetone volume, iambic keyer modes A and B settings
-- Adjusted GUI
+- Added configuration options; WPM, sidetone volume, iambic keyer modes A and B settings.
+- Adjusted GUI.
 
 0.1 alpha
-- Basic framework of the app
-- Accepts input from hamradio.solutions USB paddle interface as dits and dahs
-- Validates decoded input against test call
+- Basic framework of the app.
+- Accepts input from hamradio.solutions USB paddle interface as dits and dahs.
+- Validates decoded input against test call.
