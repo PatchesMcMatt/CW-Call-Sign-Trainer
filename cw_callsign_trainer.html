@@ -185,12 +185,63 @@ License: GPLv3 -->
       padding: 0.5rem 1rem 1rem;
       text-align: center;
     }
+
+    /* =======================================
+    LIGHT THEME OVERRIDES
+    ======================================== */
+    body[data-theme="light"] {
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    body[data-theme="light"] .panel {
+      background: #ffffff;
+      border-color: #d1d5db;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    body[data-theme="light"] header p,
+    body[data-theme="light"] .callsign,
+    body[data-theme="light"] .io-value,
+    body[data-theme="light"] .status,
+    body[data-theme="light"] .section-title,
+    body[data-theme="light"] footer {
+      color: #4b5563;
+    }
+
+    body[data-theme="light"] input[type="number"],
+    body[data-theme="light"] select {
+      background: #ffffff;
+      border-color: #9ca3af;
+      color: #111827;
+    }
+
+    body[data-theme="light"] .primary {
+      background: #22c55e;
+      color: #022c22;
+      border-color: #16a34a;
+      box-shadow: 0 6px 16px rgba(34,197,94,0.45);
+    }
+    body[data-theme="light"] .primary:hover {
+      background: #16a34a;
+    }
+
+    body[data-theme="light"] button {
+      background: #e5e7eb;
+      color: #111827;
+      border-color: #9ca3af;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    body[data-theme="light"] button:hover {
+      background: #d1d5db;
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>CW Call Sign Sending Trainer</h1>
-    <p>Compatible with the hamradio.solutions paddle adapter.</p>
+    <p>Compatible with the hamradio.solutions VBand paddle adapter.</p>
   </header>
 
   <div class="panel header-panel">
@@ -212,7 +263,7 @@ License: GPLv3 -->
       <div class="flex-col">
         <div class="section-title">Current Morse pattern</div>
         <div id="pattern" class="io-value"><strong>Waiting for input…</strong></div>
-        <div class="hint">Dot = left paddle, Dash = right paddle.</div>
+        <div class="hint">Sent character elements appear here as they are sent.</div>
       </div>
     </div>
   </div>
@@ -244,6 +295,14 @@ License: GPLv3 -->
         </label>
 
         <label>
+          Flip Paddle:
+          <select id="paddleFlip">
+              <option value="off">Right Handed</option>
+              <option value="on">Left Handed</option>
+            </select>
+        </label>
+
+        <label>
           Iambic mode:
           <select id="iambicMode">
             <option value="A">Mode A</option>
@@ -261,12 +320,21 @@ License: GPLv3 -->
           Sidetone volume:
           <input type="range" id="toneVolume" min="0" max="1" step="0.01" value="0.3">
         </label>
+
+        <label>
+          Theme
+          <select id="themeMode">
+            <option value="system">System</option>
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+        </label>
       </div>
       <div class="flex-col">
         <div class="section-title">Hints</div>
         <p style="font-size:0.85rem; color:#9ca3af; margin-top:4px;">
-          • Left paddle, left Control key, "[" key = dit<br>
-          • Right paddle, right Control key, "]" key = dah<br>
+          • Left paddle, left Control, and [ are interchangeable.<br>
+          • Right paddle, right Control, and ] are interchangeable.<br>
           • Send EEEE to reset attempt and try again<br>
           • Hold paddles for iambic sending (A or B).<br>
           • Adjust WPM to match your desired sending speed.
@@ -934,7 +1002,7 @@ License: GPLv3 -->
 
       charTimer = setTimeout(() => {
         if (currentPattern.length > 0) {
-          const ch = REVERSE[currentPattern] || "?";
+          const ch = REVERSE[currentPattern] || "*";
 
           // -----------------------------------------
           // REALISTIC RESET: E E E E (four dits)
@@ -1076,30 +1144,50 @@ License: GPLv3 -->
       updateFocusStatus();
     });
 
+    // Obtain paddle input via VBand adpater (or keyboard left and right Control keys)
     document.addEventListener("keydown", (e) => {
       if (!pageHasFocus) return;
       if (e.repeat) return;
 
+      const flipped = paddleFlip.value === "on";
+
       if (e.code === "ControlLeft") {
         e.preventDefault();
-        ditPressed = true;
+        if (!flipped) {
+          ditPressed = true;
+        } else {
+          dahPressed = true;
+        }
         processPaddles();
       } else if (e.code === "ControlRight") {
         e.preventDefault();
-        dahPressed = true;
+        if (!flipped) {
+          dahPressed = true;
+        } else {
+          ditPressed = true;
+        }
         processPaddles();
       }
     });
 
     document.addEventListener("keyup", (e) => {
+      const flipped = paddleFlip.value === "on";
+
       if (e.code === "ControlLeft") {
-        ditPressed = false;
+        if (!flipped) {
+          ditPressed = false;
+        } else {
+          dahPressed = false;
+        }
       } else if (e.code === "ControlRight") {
-        dahPressed = false;
+        if (!flipped) {
+          dahPressed = false;
+        } else {
+          ditPressed = false;
+        }
       }
 
       if (!ditPressed && !dahPressed) {
-        // Both paddles are now up; handle Mode B extra element if desired.
         const mode = document.getElementById("iambicMode").value;
         if (mode === "B" && lastElement) {
           const extra = lastElement === "." ? "-" : ".";
@@ -1111,36 +1199,59 @@ License: GPLv3 -->
       }
     });
 
+    // Allow use of [ and ] for dits and dah entry; Useful for keyboards that lack left and right Control keys
     document.addEventListener("keydown", (e) => {
-      // DIT: [
+      const flipped = paddleFlip.value === "on";
+
       if (e.key === "[") {
-        if (!ditPressed) {
-          ditPressed = true;
-          processPaddles();
+        if (!flipped) {
+          if (!ditPressed) {
+            ditPressed = true;
+            processPaddles();
+          }
+        } else {
+          if (!dahPressed) {
+            dahPressed = true;
+            processPaddles();
+          }
         }
         e.preventDefault();
       }
 
-      // DAH: ]
       if (e.key === "]") {
-        if (!dahPressed) {
-          dahPressed = true;
-          processPaddles();
+        if (!flipped) {
+          if (!dahPressed) {
+            dahPressed = true;
+            processPaddles();
+          }
+        } else {
+          if (!ditPressed) {
+            ditPressed = true;
+            processPaddles();
+          }
         }
         e.preventDefault();
       }
     });
 
     document.addEventListener("keyup", (e) => {
-      // Release DIT
+      const flipped = paddleFlip.value === "on";
+
       if (e.key === "[") {
-        ditPressed = false;
+        if (!flipped) {
+          ditPressed = false;
+        } else {
+          dahPressed = false;
+        }
         e.preventDefault();
       }
 
-      // Release DAH
       if (e.key === "]") {
-        dahPressed = false;
+        if (!flipped) {
+          dahPressed = false;
+        } else {
+          ditPressed = false;
+        }
         e.preventDefault();
       }
     });
@@ -1203,6 +1314,7 @@ License: GPLv3 -->
     const nextBtn = document.getElementById("nextBtn");
     const resetBtn = document.getElementById("resetBtn");
     const regionSelect = document.getElementById("regionSelect");
+    const paddleFlip = document.getElementById("paddleFlip");
 
     /* ------------------------------------
     LOAD SETTINGS ON STARTUP
@@ -1211,6 +1323,8 @@ License: GPLv3 -->
       const savedWpm = localStorage.getItem("cw_wpm");
       const savedTone = localStorage.getItem("cw_tone");
       const savedRegion = localStorage.getItem("cw_region");
+      const savedFlip = localStorage.getItem("cw_flip");
+      const savedTheme = localStorage.getItem("cw_theme");
 
       if (savedWpm !== null) {
         wpmSlider.value = savedWpm;
@@ -1225,6 +1339,16 @@ License: GPLv3 -->
       if (savedRegion !== null) {
         regionSelect.value = savedRegion;
         regionSelect.dispatchEvent(new Event("change"));
+      }
+
+      if (savedFlip !== null) {
+        paddleFlip.value = savedFlip;
+        paddleFlip.dispatchEvent(new Event("change"));
+      }
+
+      if (savedTheme !== null) {
+        themeMode.value = savedTheme;
+        applyTheme(savedTheme);
       }
     }
 
@@ -1290,6 +1414,34 @@ License: GPLv3 -->
         clearCharTimer();
         updateDisplay();
       });
+
+      // Paddle flip select
+      paddleFlip.addEventListener("change", () => {
+        localStorage.setItem("cw_flip", paddleFlip.value);
+      });
+
+      // Theme mode select
+      themeMode.addEventListener("change", () => {
+        const mode = themeMode.value;
+        localStorage.setItem("cw_theme", mode);
+        applyTheme(mode);
+      });
+    }
+
+    /* ============================================
+    THEME
+    ============================================ */
+    function applyTheme(mode) {
+      if (mode === "light") {
+        document.body.dataset.theme = "light";
+      } else if (mode === "dark") {
+        document.body.dataset.theme = "dark";
+      } else {
+        // system mode
+        document.body.dataset.theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+      }
     }
 
     /* ============================================
