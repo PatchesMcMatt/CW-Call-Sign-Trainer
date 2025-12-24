@@ -4,6 +4,10 @@ Simple CW Call Sign Trainer using JavaScript. Download the HTML file, run it loc
 ![CW Call Sign Trainer](cw-call-sign-trainer.png)
 
 ### Version history
+0.10 alpha
+- Added support for generating AA - AL 2x2 and 2x1 U.S. calls properly.
+- Customized settings now persist between visits. Your settings will load automatically the next time you load the app. 
+
 0.9 alpha
 - Added ability to reset attempt by sending EEEE (less helpful at slower WPM; this issue will be fixed in a future release).
 - Added keyboard functionality for keyboards which do not have both a left and right Control key. You may now use [ and ] keys to send dits and dahs, respectively.

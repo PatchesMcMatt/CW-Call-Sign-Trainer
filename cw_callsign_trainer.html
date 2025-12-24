@@ -275,7 +275,8 @@ License: GPLv3 -->
     </div>
 
   <footer>
-    Made with dits and dahs by Matthew Swint, K2MAS
+    Made with dits and dahs by Matthew Swint, K2MAS<br>
+    Your settings are stored only in your browser and never sent anywhere.
   </footer>
 
   <script>
@@ -742,7 +743,8 @@ License: GPLv3 -->
     REGION 2 — PREFIX (U.S., Canada, Mexico, Caribbean, South America)
     --------------------------------------------------------------- */
     // U.S. prefixes
-    const US_PRIMARY = ["K", "N", "W"];
+    const US_PRIMARY_1LETTER = ["K", "N", "W"];
+    const US_PRIMARY_2LETTER = ["AA","AB","AC","AD","AE","AF","AG","AH","AI","AJ","AK","AL"];
     const US_SECONDARY = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
     // Canada
@@ -792,12 +794,14 @@ License: GPLv3 -->
 
     function generateUSCall() {
       const roll = Math.random();
-
-      if (roll < 0.60) return randItem(US_PRIMARY) + randDigit() + randSafeSuffix(3); // 1×3
-      if (roll < 0.90) return randItem(US_PRIMARY) + randItem(US_SECONDARY) + randDigit() + randUS2x3Suffix(); // 2×3
-      if (roll < 0.95) return randItem(US_PRIMARY) + randDigit() + randSafeSuffix(2); // 1×2
-      if (roll < 0.98) return randItem(US_PRIMARY) + randItem(US_SECONDARY) + randDigit() + randSuffix(1); // 2×1
-      return randItem(US_PRIMARY) + randDigit() + randSuffix(1); // 1×1
+      if (roll < 0.50) return randItem(US_PRIMARY_1LETTER) + randDigit() + randSafeSuffix(3); // 1×3
+      if (roll < 0.80) return randItem(US_PRIMARY_1LETTER) + randItem(US_SECONDARY) + randDigit() + randUS2x3Suffix(); // 2×3
+      if (roll < 0.87) return randItem(US_PRIMARY_1LETTER) + randDigit() + randSafeSuffix(2); // 1×2
+      if (roll < 0.90) return randItem(US_PRIMARY_1LETTER) + randItem(US_SECONDARY) + randDigit() + randSafeSuffix(2); // 2×2
+      if (roll < 0.93) return randItem(US_PRIMARY_2LETTER) + randDigit() + randSafeSuffix(2); // 2x2 (AA - AL prefixes)
+      if (roll < 0.96) return randItem(US_PRIMARY_1LETTER) + randItem(US_SECONDARY) + randDigit() + randSuffix(1); // 2×1
+      if (roll < 0.99) return randItem(US_PRIMARY_2LETTER) + randDigit() + randSuffix(1); // 2×1 (AA - AL prefixes)
+      return randItem(US_PRIMARY_1LETTER) + randDigit() + randSuffix(1); // 1×1
     }
 
     function generateRegion2Call() {
@@ -1200,56 +1204,103 @@ License: GPLv3 -->
     const resetBtn = document.getElementById("resetBtn");
     const regionSelect = document.getElementById("regionSelect");
 
-    wpmSlider.addEventListener("input", (e) => {
-      wpmNumber.value = e.target.value;
-    });
-    wpmNumber.addEventListener("input", (e) => {
-      const v = Math.min(40, Math.max(5, parseInt(e.target.value, 10) || 20));
-      wpmNumber.value = v;
-      wpmSlider.value = v;
-    });
+    /* ------------------------------------
+    LOAD SETTINGS ON STARTUP
+    ------------------------------------ */
+    function loadSettings() {
+      const savedWpm = localStorage.getItem("cw_wpm");
+      const savedTone = localStorage.getItem("cw_tone");
+      const savedRegion = localStorage.getItem("cw_region");
 
-    stSlider.addEventListener("input", (e) => {
-      stFreq = parseFloat(e.target.value);
-      stNumber.value = stFreq;
-
-      if (osc) {
-        osc.frequency.setTargetAtTime(stFreq, audioCtx.currentTime, 0.005);
+      if (savedWpm !== null) {
+        wpmSlider.value = savedWpm;
+        wpmNumber.value = savedWpm;
       }
-    });
-    stNumber.addEventListener("input", (e) => {
-      const stFreq = Math.min(900, Math.max(350, parseInt(e.target.value, 10) || 650));
-      stNumber.value = stFreq;
-      stSlider.value = stFreq;
 
-      if (osc) {
-        osc.fequency.setTargetAtTime(stFreq, audioCtx.currentTime, 0.005);
+      if (savedTone !== null) {
+        stSlider.value = savedTone;
+        stNumber.value = savedTone;
       }
-    });
 
-    nextBtn.addEventListener("click", () => {
-      newCallsign();
-    });
+      if (savedRegion !== null) {
+        regionSelect.value = savedRegion;
+        regionSelect.dispatchEvent(new Event("change"));
+      }
+    }
 
-    resetBtn.addEventListener("click", () => {
-      decodedText = "";
-      currentPattern = "";
-      elementQueue = [];
-      lastElement = null;
-      clearCharTimer();
-      updateDisplay();
-    });
+    /* ------------------------------------
+    EVENT LISTENERS + SAVE SETTINGS
+    ------------------------------------ */
 
-    regionSelect.addEventListener("change", () => {
-    // Immediately load a new call sign when the user changes regions
-    newCallsign();
-    });
+    function setupUIListeners() {
+      // WPM slider → number
+      wpmSlider.addEventListener("input", (e) => {
+        wpmNumber.value = e.target.value;
+        localStorage.setItem("cw_wpm", e.target.value);
+      });
+
+      // WPM number → slider
+      wpmNumber.addEventListener("input", (e) => {
+        const v = Math.min(40, Math.max(5, parseInt(e.target.value, 10) || 20));
+        wpmNumber.value = v;
+        wpmSlider.value = v;
+        localStorage.setItem("cw_wpm", v);
+      });
+
+      // Tone slider → number
+      stSlider.addEventListener("input", (e) => {
+        stFreq = parseFloat(e.target.value);
+        stNumber.value = stFreq;
+        localStorage.setItem("cw_tone", stFreq);
+
+        if (osc) {
+          osc.frequency.setTargetAtTime(stFreq, audioCtx.currentTime, 0.005);
+        }
+      });
+
+      // Tone number → slider
+      stNumber.addEventListener("input", (e) => {
+        const stFreq = Math.min(900, Math.max(350, parseInt(e.target.value, 10) || 650));
+        stNumber.value = stFreq;
+        stSlider.value = stFreq;
+        localStorage.setItem("cw_tone", stFreq);
+
+        if (osc) {
+          osc.frequency.setTargetAtTime(stFreq, audioCtx.currentTime, 0.005);
+        }
+      });
+
+      // Region selector
+      regionSelect.addEventListener("change", () => {
+        localStorage.setItem("cw_region", regionSelect.value);
+        newCallsign();
+      });
+
+      // Next button
+      nextBtn.addEventListener("click", () => {
+        newCallsign();
+      });
+
+      // Reset button
+      resetBtn.addEventListener("click", () => {
+        decodedText = "";
+        currentPattern = "";
+        elementQueue = [];
+        lastElement = null;
+        clearCharTimer();
+        updateDisplay();
+      });
+    }
 
     /* ============================================
     INIT
     ============================================ */
-    updateFocusStatus();
-    newCallsign();
+    window.addEventListener("DOMContentLoaded", () => {
+      loadSettings();        // restore region, WPM, tone, etc.
+      setupUIListeners();    // attach listeners AFTER restoring values
+      updateFocusStatus();   // safe to run now
+      newCallsign();         // generate first call sign using restored region
+    });
   </script>
 </body>
 </html>
