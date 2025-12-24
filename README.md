@@ -7,8 +7,9 @@ Simple CW Call Sign Trainer using JavaScript. Download the HTML file, run it loc
 0.11 alpha
 - Added ability to flip paddle assignment to accommodate left-handed users.
 - Added toggle to switch between light and dark themes, or to set automatically to match your system's theme.
-0.11 known issues
-- Iambic Mode B is broken. 
+
+  0.11 known issues
+  - Iambic Mode B is broken. 
 
 0.10 alpha
 - Added support for generating AA - AL 2x2 and 2x1 U.S. calls properly.
