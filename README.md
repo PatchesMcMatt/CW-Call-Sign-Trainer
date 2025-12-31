@@ -8,6 +8,11 @@ Simple CW Call Sign Trainer using JavaScript. Download the HTML file, run it loc
 2. [Known Issues](#known-issues)
 
 ### Version history
+0.12 alpha
+- Iambic mode B has been fixed.
+- Fixed a bug where the app loaded with previous configured settings, but audio was not enabled. Audio would come back once the user settings were modified. This issue stems from a browser standard that does not allow audio to automatically be enabled on a webpage as soon as it's loaded. Audio is only enabled after a user interacts with the page which is why audio would come back after modifying a user configuration setting. To fix this, I've added an overlay when the page is loaded that requires user interaction to "Enable Browser Audio".
+- A short series of tones is sounded upon successful sending of the callsign.
+
 0.11 alpha
 - Added ability to flip paddle assignment to accommodate left-handed users.
 - Added toggle to switch between light and dark themes, or to set automatically to match your system's theme.

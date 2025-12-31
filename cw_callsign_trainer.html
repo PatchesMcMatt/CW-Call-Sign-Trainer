@@ -122,7 +122,11 @@ License: GPLv3 -->
       font-weight: bold;
       letter-spacing: 2px;
     }
-
+    .success-flash {
+      color: #22c55e;     /* bright green */
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
     select {
       margin-left: 8px;
       padding: 2px 4px;
@@ -179,6 +183,39 @@ License: GPLv3 -->
     .focus-ok {
       color: #22c55e;
     }
+
+    #audioOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    .audio-overlay-content {
+      text-align: center;
+      background: #1f2937;
+      padding: 2rem 2.5rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      border: 1px solid #374151;
+    }
+
+    .audio-overlay-content h2 {
+      margin: 0 0 0.5rem;
+      color: #fbbf24;
+    }
+
+    .audio-overlay-content p {
+      color: #e5e7eb;
+      margin-bottom: 1rem;
+    }
+
     footer {
       font-size: 0.75rem;
       color: #4b5563;
@@ -244,6 +281,14 @@ License: GPLv3 -->
     <h1>CW Call Sign Sending Trainer</h1>
     <p>Compatible with the hamradio.solutions VBand paddle adapter.</p>
   </header>
+
+  <div id="audioOverlay">
+    <div class="audio-overlay-content">
+      <h2>Enable Audio</h2>
+      <p>This app requires audio to function. Please enable audio to continue.</p>
+      <button id="enableAudioBtn" class="primary">Enable Browser Audio</button>
+    </div>
+  </div>
 
   <div class="panel header-panel">
     <div class="section-title">Current call sign</div>
@@ -358,15 +403,28 @@ License: GPLv3 -->
     let stFreq = 650; // default
 
     function ensureAudio() {
+      // Create context if missing
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      // If nodes belong to a different context, discard them
+      if (gainNode && gainNode.context !== audioCtx) gainNode = null;
+      if (osc && osc.context !== audioCtx) osc = null;
+
+      // Create gain node if needed
+      if (!gainNode) {
         gainNode = audioCtx.createGain();
         gainNode.gain.value = 0;
         gainNode.connect(audioCtx.destination);
       }
+
+      // Resume context if suspended
       if (audioCtx.state === "suspended") {
         audioCtx.resume();
       }
+
+      // Create oscillator if needed
       if (!osc) {
         osc = audioCtx.createOscillator();
         osc.frequency.setTargetAtTime(stFreq, audioCtx.currentTime, 0.005);
@@ -405,6 +463,32 @@ License: GPLv3 -->
       osc.stop(ctx.currentTime + 0.12); // short blip
     }
 
+    function playSuccessBeep() {
+      const ctx = audioCtx;
+
+      const notes = [
+        { freq: 784,  dur: 0.10 },  // G5
+        { freq: 988,  dur: 0.10 },  // B5
+        { freq: 1175, dur: 0.14 }   // D6
+      ];
+
+      let t = ctx.currentTime;
+
+      notes.forEach(n => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.frequency.value = n.freq;
+        gain.gain.value = 0.22;
+
+        osc.connect(gain).connect(ctx.destination);
+
+        osc.start(t);
+        osc.stop(t + n.dur);
+
+        t += n.dur + 0.015;
+      });
+    }
 
     /* ============================================
     MORSE TABLE
@@ -984,6 +1068,7 @@ License: GPLv3 -->
     let lastElement = null;
     let charTimer = null;
     let lastChars = [];
+    let wasSqueezing = false;
 
     function ditLengthSec() {
       const wpm = parseInt(document.getElementById("wpmNumber").value, 10) || 20;
@@ -1061,6 +1146,7 @@ License: GPLv3 -->
 
       if (ditPressed && dahPressed) {
         // iambic squeeze: if nothing queued, start alternation with previous opposite or dit
+        wasSqueezing = true;
         if (elementQueue.length === 0) {
           if (lastElement === ".") {
             enqueueDah();
@@ -1189,14 +1275,17 @@ License: GPLv3 -->
       }
 
       if (!ditPressed && !dahPressed) {
-        const mode = document.getElementById("iambicMode").value;
-        if (mode === "B" && lastElement) {
-          const extra = lastElement === "." ? "-" : ".";
-          elementQueue.push(extra);
-          if (!sending) {
-            sendNextElement();
+        if (wasSqueezing) {
+          const mode = document.getElementById("iambicMode").value;
+          if (mode === "B" && lastElement) {
+            const extra = lastElement === "." ? "-" : ".";
+            elementQueue.push(extra);
+            if (!sending) {
+              sendNextElement();
+            }
           }
         }
+        wasSqueezing = false; // reset after any release
       }
     });
 
@@ -1280,11 +1369,20 @@ License: GPLv3 -->
         document.getElementById("status").innerHTML =
           'Send the call sign using your paddle.<br><small>Send EEEE to reset your attempt.</small>';
       } else if (cleanedDecoded === cleanedTarget) {
-        statusEl.innerHTML =
-          "<span class='correct'>Correct!</span> You matched the call sign!";
+        // Play success tone
+        playSuccessBeep();
+
+        // Show GOOD JOB!! in the pattern area
+        patternEl.innerHTML = "<strong class='success-flash'>GOOD JOB!!</strong>";
+
+        // Also update the status text
+        statusEl.innerHTML = "<span class='correct'>Correct!</span> You matched the call sign.";
+
+        // After a short delay, load the next call sign
         setTimeout(() => {
+          patternEl.innerHTML = "<strong>Waiting for input…</strong>";
           newCallsign();
-        }, 800);
+        }, 900);
       } else if (cleanedDecoded.length === 0) {
         document.getElementById("status").innerHTML =
           'Send the call sign using your paddle.<br><small>Send EEEE to reset your attempt.</small>';
@@ -1446,13 +1544,45 @@ License: GPLv3 -->
     }
 
     /* ============================================
+    ENABLE AUDIO
+    ============================================ */
+    function enableAudio() {
+      // Ensure audio context exists
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        osc = null;
+        gainNode = null;
+      }
+
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+
+      const overlay = document.getElementById("audioOverlay");
+
+      // Fade out
+      overlay.style.opacity = "0";
+      overlay.style.pointerEvents = "none";
+
+      // Fully remove after fade
+      setTimeout(() => {
+        overlay.style.display = "none";
+      }, 300);
+
+      // Now start the app
+      newCallsign();
+    }
+
+    /* ============================================
     INIT
     ============================================ */
     window.addEventListener("DOMContentLoaded", () => {
-      loadSettings();        // restore region, WPM, tone, etc.
-      setupUIListeners();    // attach listeners AFTER restoring values
-      updateFocusStatus();   // safe to run now
-      newCallsign();         // generate first call sign using restored region
+      // Do NOT start the app yet — wait for audio unlock
+      loadSettings();
+      setupUIListeners();
+      updateFocusStatus();
+      // Attach listener
+      document.getElementById("enableAudioBtn").addEventListener("click", enableAudio);
     });
   </script>
 </body>
