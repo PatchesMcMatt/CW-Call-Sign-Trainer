@@ -3,13 +3,14 @@ Simple CW Call Sign Trainer using JavaScript. Download the HTML file, run it loc
 
 ![CW Call Sign Trainer](cw-call-sign-trainer.png)
 
+### Table of Contents
+1. [Version History](#version-history)
+2. [Known Issues](#known-issues)
+
 ### Version history
 0.11 alpha
 - Added ability to flip paddle assignment to accommodate left-handed users.
 - Added toggle to switch between light and dark themes, or to set automatically to match your system's theme.
-
-  0.11 alpha known issues
-  - Iambic Mode B is broken. 
 
 0.10 alpha
 - Added support for generating AA - AL 2x2 and 2x1 U.S. calls properly.
@@ -53,3 +54,7 @@ Simple CW Call Sign Trainer using JavaScript. Download the HTML file, run it loc
 - Basic framework of the app.
 - Accepts input from hamradio.solutions USB paddle interface as dits and dahs.
 - Validates decoded input against test call.
+
+### Known Issues
+
+- Iambic Mode B does not function correctly.
