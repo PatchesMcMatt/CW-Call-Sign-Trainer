@@ -62,4 +62,3 @@ Simple CW Call Sign Trainer using JavaScript. Download the HTML file, run it loc
 
 ### Known Issues
 
-- Iambic Mode B does not function correctly.
