@@ -8,6 +8,9 @@ Simple CW Call Sign Trainer using JavaScript. Download the HTML file, run it loc
 2. [Known Issues](#known-issues)
 
 ### Version history
+0.13 beta
+- I think we're ready for beta testing!
+
 0.12 alpha
 - Iambic mode B has been fixed.
 - Fixed a bug where the app loaded with previous configured settings, but audio was not enabled. Audio would come back once the user settings were modified. This issue stems from a browser standard that does not allow audio to automatically be enabled on a webpage as soon as it's loaded. Audio is only enabled after a user interacts with the page which is why audio would come back after modifying a user configuration setting. To fix this, I've added an overlay when the page is loaded that requires user interaction to "Enable Browser Audio".

@@ -895,6 +895,25 @@ License: GPLv3 -->
     /* ---------------------------------------------------------------
     REGION 2 — PREFIX (U.S., Canada, Mexico, Caribbean, South America)
     --------------------------------------------------------------- */
+    // VIP callsign pool
+    const VIP_CALLSIGNS = [
+      "N9WF", // Bryce Wolf #3834
+      "WB0RLJ", // Jim Vaughan #3312
+      "K2MAS", // Me #3852
+      "AC4BT", // Jerry Weisskohl #1148
+      "KE9BNH", // Paul Burley #3836
+      "AC4NK", // Ryan Banks #3801
+      "WJ0C" // Steve Robbs #2997
+    ];
+
+    // Create a weighted pool
+    const VIP_POOL = [];
+    VIP_CALLSIGNS.forEach(cs => {
+      for (let i = 0; i < 5; i++) {   // weight = 5x
+        VIP_POOL.push(cs);
+      }
+    });
+
     // U.S. prefixes
     const US_PRIMARY_1LETTER = ["K", "N", "W"];
     const US_PRIMARY_2LETTER = ["AA","AB","AC","AD","AE","AF","AG","AH","AI","AJ","AK","AL"];
@@ -946,6 +965,11 @@ License: GPLv3 -->
     }
 
     function generateUSCall() {
+      // 10% chance to return a VIP call
+      if (Math.random() < 0.10) { 
+        return randItem(VIP_POOL);
+      }
+      // otherwise
       const roll = Math.random();
       if (roll < 0.50) return randItem(US_PRIMARY_1LETTER) + randDigit() + randSafeSuffix(3); // 1×3
       if (roll < 0.80) return randItem(US_PRIMARY_1LETTER) + randItem(US_SECONDARY) + randDigit() + randUS2x3Suffix(); // 2×3
